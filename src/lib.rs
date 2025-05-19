@@ -1,6 +1,9 @@
 use std::marker::PhantomData;
 
-use bevy::{ecs::query::QuerySingleError, prelude::*, ui::UiSystem, window::PrimaryWindow};
+use bevy::{
+    ecs::query::QuerySingleError, prelude::*, render::camera::CameraUpdateSystem, ui::UiSystem,
+    window::PrimaryWindow,
+};
 
 /// Defines to what the UI entity should be anchored to, can be either another entity (which must have a ['GlobalTransform'])
 /// or an in world location
@@ -96,7 +99,8 @@ impl<SingleCameraMarker: Component> Plugin for AnchorUiPlugin<SingleCameraMarker
             PostUpdate,
             system_move_ui_nodes::<SingleCameraMarker>
                 .before(TransformSystem::TransformPropagate)
-                .before(UiSystem::Layout),
+                .before(UiSystem::Layout)
+                .after(CameraUpdateSystem),
         );
 
         app.register_type::<AnchorUiNode>();
