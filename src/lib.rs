@@ -186,22 +186,20 @@ fn system_move_ui_nodes<C: Component>(
         node.left = leftpos;
         // }
 
-        let window_height = window.height();
-
         let nodeheight = if let Val::Px(height) = node.height {
             height
         } else {
             computed_node.size().y * computed_node.inverse_scale_factor()
         };
 
-        let newheight = match uinode.anchorheight {
-            VerticalAnchor::Top => Val::Px(window_height - position.y - nodeheight),
-            VerticalAnchor::Mid => Val::Px(window_height - position.y - nodeheight / 2.0),
-            VerticalAnchor::Bottom => Val::Px(window_height - position.y),
+        let top_pos = match uinode.anchorheight {
+            VerticalAnchor::Top => Val::Px(position.x),
+            VerticalAnchor::Mid => Val::Px(position.y - nodeheight / 2.0),
+            VerticalAnchor::Bottom => Val::Px(position.y - nodeheight),
         };
 
-        // if check_if_not_close(node.as_ref().bottom, newheight) {
-        node.bottom = newheight;
+        // if check_if_not_close(node.as_ref().top, top_pos) {
+        node.top = top_pos
         // }
     }
 }
