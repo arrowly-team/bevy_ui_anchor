@@ -81,6 +81,14 @@ impl AnchorUiNode {
     }
 }
 
+#[derive(Debug, Hash, PartialEq, Eq, Clone, SystemSet)]
+pub enum AnchorUiSystems {
+    /// Updates node positions.
+    ///
+    /// Runs in [`PostUpdate`].
+    Update,
+}
+
 pub struct AnchorUiPlugin<SingleCameraMarker: Component> {
     _component: PhantomData<SingleCameraMarker>,
 }
@@ -95,13 +103,15 @@ impl<SingleCameraMarker: Component> AnchorUiPlugin<SingleCameraMarker> {
 
 impl<SingleCameraMarker: Component> Plugin for AnchorUiPlugin<SingleCameraMarker> {
     fn build(&self, app: &mut App) {
-        app.add_systems(
-            PostUpdate,
-            system_move_ui_nodes::<SingleCameraMarker>
-                .before(TransformSystem::TransformPropagate)
-                .before(UiSystem::Layout)
-                .after(CameraUpdateSystem),
-        );
+        app.configure_sets(PostUpdate, AnchorUiSystems::Update)
+            .add_systems(
+                PostUpdate,
+                system_move_ui_nodes::<SingleCameraMarker>
+                    .in_set(AnchorUiSystems::Update)
+                    .before(TransformSystem::TransformPropagate)
+                    .before(UiSystem::Layout)
+                    .after(CameraUpdateSystem),
+            );
 
         app.register_type::<AnchorUiNode>();
     }
